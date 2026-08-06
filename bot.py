@@ -3,19 +3,21 @@ import disnake
 from disnake.ext import commands
 from disnake.ui import StringSelect, View, Modal, TextInput
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 
 intents = disnake.Intents.default()
 intents.members = True
 bot = commands.InteractionBot(intents=intents)
 
-# Берем данные из переменных окружения
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-GOOGLE_SHEET_NAME = os.getenv("GOOGLE_SHEET_NAME", "ЧС Сервера")  # "ЧС Сервера" — значение по умолчанию
+GOOGLE_SHEET_NAME = os.getenv("GOOGLE_SHEET_NAME", "ЧС Сервера")
 
 def get_sheet():
-    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-    creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+    scopes = [
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive'
+    ]
+    creds = Credentials.from_service_account_file('credentials.json', scopes=scopes)
     client = gspread.authorize(creds)
     return client.open(GOOGLE_SHEET_NAME).sheet1
 
